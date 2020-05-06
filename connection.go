@@ -12,16 +12,16 @@ const (
 	clientConnection = "clientConnection"
 )
 
-type Connection struct {
+type connection struct {
 	connectedAs connectionType
 	connection  net.Conn
 }
 
-func NewConnection(connectedAs connectionType, conn net.Conn) *Connection {
-	return &Connection{connectedAs, conn}
+func newConnection(connectedAs connectionType, conn net.Conn) *connection {
+	return &connection{connectedAs, conn}
 }
 
-func (c *Connection) Read(b []byte) (n int, err error) {
+func (c *connection) Read(b []byte) (n int, err error) {
 	n, err = c.connection.Read(b)
 
 	defer func() {
@@ -38,7 +38,7 @@ func (c *Connection) Read(b []byte) (n int, err error) {
 	return n, err
 }
 
-func (c *Connection) Write(b []byte) (n int, err error) {
+func (c *connection) Write(b []byte) (n int, err error) {
 	n, err = c.connection.Write(b)
 
 	defer func() {
@@ -55,7 +55,7 @@ func (c *Connection) Write(b []byte) (n int, err error) {
 	return n, err
 }
 
-func (c *Connection) Close() error {
+func (c *connection) Close() error {
 	err := c.connection.Close()
 
 	defer func() {
@@ -72,22 +72,22 @@ func (c *Connection) Close() error {
 	return err
 }
 
-func (c *Connection) LocalAddr() net.Addr {
+func (c *connection) LocalAddr() net.Addr {
 	return c.connection.LocalAddr()
 }
 
-func (c *Connection) RemoteAddr() net.Addr {
+func (c *connection) RemoteAddr() net.Addr {
 	return c.connection.RemoteAddr()
 }
 
-func (c *Connection) SetDeadline(t time.Time) error {
+func (c *connection) SetDeadline(t time.Time) error {
 	return c.connection.SetDeadline(t)
 }
 
-func (c *Connection) SetReadDeadline(t time.Time) error {
+func (c *connection) SetReadDeadline(t time.Time) error {
 	return c.connection.SetReadDeadline(t)
 }
 
-func (c *Connection) SetWriteDeadline(t time.Time) error {
+func (c *connection) SetWriteDeadline(t time.Time) error {
 	return c.connection.SetWriteDeadline(t)
 }

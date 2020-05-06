@@ -5,7 +5,7 @@ import (
 )
 
 func Listen(network, address string) (net.Listener, error) {
-	listener := new(Listener)
+	listener := new(listener)
 	return listener.Listen(network, address)
 }
 
@@ -16,7 +16,7 @@ func Dial(network, address string) (net.Conn, error) {
 		return conn, err
 	}
 
-	newConnection := NewConnection(clientConnection, conn)
+	newConnection := newConnection(clientConnection, conn)
 	onClientConnectionAcceptedCallback(newConnection)
 
 	return newConnection, nil

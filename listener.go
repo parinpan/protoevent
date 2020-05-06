@@ -4,33 +4,33 @@ import (
 	"net"
 )
 
-type Listener struct {
+type listener struct {
 	listener net.Listener
 }
 
-func (l *Listener) Listen(network, address string) (*Listener, error) {
+func (l *listener) Listen(network, address string) (*listener, error) {
 	var err error
 	l.listener, err = net.Listen(network, address)
 	return l, err
 }
 
-func (l *Listener) Accept() (net.Conn, error) {
+func (l *listener) Accept() (net.Conn, error) {
 	conn, err := l.listener.Accept()
 
 	if nil != err {
 		return conn, err
 	}
 
-	newConnection := NewConnection(serverConnection, conn)
+	newConnection := newConnection(serverConnection, conn)
 	onServerConnectionAcceptedCallback(newConnection)
 
 	return newConnection, err
 }
 
-func (l *Listener) Close() error {
+func (l *listener) Close() error {
 	return l.listener.Close()
 }
 
-func (l *Listener) Addr() net.Addr {
+func (l *listener) Addr() net.Addr {
 	return l.listener.Addr()
 }
