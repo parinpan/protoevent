@@ -6,21 +6,31 @@ import (
 
 type OnConnectionAcceptedExecFn func(conn net.Conn)
 type OnConnectionClosedExecFn func(conn net.Conn)
+type OnConnectionErrorExecFn func(err error)
+
 type OnMessageReceivedExecFn func(conn net.Conn, message []byte)
+type OnReceiveMessageErrorExecFn func(conn net.Conn, err error)
 type OnMessageSentExecFn func(conn net.Conn, message []byte)
+type OnSendMessageErrorExecFn func(conn net.Conn, message []byte, err error)
 
 var (
 	// server events
-	onServerConnectionAcceptedCallback OnConnectionAcceptedExecFn = func(conn net.Conn) {}
-	onServerConnectionClosedCallback   OnConnectionClosedExecFn   = func(conn net.Conn) {}
-	onServerMessageReceivedCallback    OnMessageReceivedExecFn    = func(conn net.Conn, message []byte) {}
-	onServerMessageSentCallback        OnMessageSentExecFn        = func(conn net.Conn, message []byte) {}
+	onServerConnectionAcceptedCallback  OnConnectionAcceptedExecFn  = func(conn net.Conn) {}
+	onServerConnectionClosedCallback    OnConnectionClosedExecFn    = func(conn net.Conn) {}
+	onServerConnectionErrorCallback     OnConnectionErrorExecFn     = func(err error) {}
+	onServerMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte) {}
+	onServerReceiveMessageErrorCallback OnReceiveMessageErrorExecFn = func(conn net.Conn, err error) {}
+	onServerMessageSentCallback         OnMessageSentExecFn         = func(conn net.Conn, message []byte) {}
+	onServerSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, err error) {}
 
 	// client events
-	onClientConnectionAcceptedCallback OnConnectionAcceptedExecFn = func(conn net.Conn) {}
-	onClientConnectionClosedCallback   OnConnectionClosedExecFn   = func(conn net.Conn) {}
-	onClientMessageReceivedCallback    OnMessageReceivedExecFn    = func(conn net.Conn, message []byte) {}
-	onClientMessageSentCallback        OnMessageSentExecFn        = func(conn net.Conn, message []byte) {}
+	onClientConnectionAcceptedCallback  OnConnectionAcceptedExecFn  = func(conn net.Conn) {}
+	onClientConnectionClosedCallback    OnConnectionClosedExecFn    = func(conn net.Conn) {}
+	onClientConnectionErrorCallback     OnConnectionErrorExecFn     = func(err error) {}
+	onClientMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte) {}
+	onClientReceiveMessageErrorCallback OnReceiveMessageErrorExecFn = func(conn net.Conn, err error) {}
+	onClientMessageSentCallback         OnMessageSentExecFn         = func(conn net.Conn, message []byte) {}
+	onClientSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, message []byte, err error) {}
 )
 
 type EventBase interface {
@@ -28,6 +38,10 @@ type EventBase interface {
 	OnConnectionClosed(fn OnConnectionClosedExecFn)
 	OnMessageReceived(fn OnMessageReceivedExecFn)
 	OnMessageSent(fn OnMessageSentExecFn)
+
+	OnConnectionError(fn OnConnectionErrorExecFn)
+	OnReceiveMessageError(fn OnReceiveMessageErrorExecFn)
+	OnSendMessageError(fn OnSendMessageErrorExecFn)
 }
 
 type ServerEvent interface {
@@ -61,6 +75,18 @@ func (se *serverEventImpl) OnMessageSent(fn OnMessageSentExecFn) {
 	onServerMessageSentCallback = fn
 }
 
+func (se *serverEventImpl) OnConnectionError(fn OnConnectionErrorExecFn) {
+	onServerConnectionErrorCallback = fn
+}
+
+func (se *serverEventImpl) OnSendMessageError(fn OnSendMessageErrorExecFn) {
+	onServerSendMessageErrorCallback = fn
+}
+
+func (se *serverEventImpl) OnReceiveMessageError(fn OnReceiveMessageErrorExecFn) {
+	onServerReceiveMessageErrorCallback = fn
+}
+
 type clientEventImpl struct {
 }
 
@@ -82,4 +108,16 @@ func (ce *clientEventImpl) OnMessageReceived(fn OnMessageReceivedExecFn) {
 
 func (ce *clientEventImpl) OnMessageSent(fn OnMessageSentExecFn) {
 	onClientMessageSentCallback = fn
+}
+
+func (ce *clientEventImpl) OnConnectionError(fn OnConnectionErrorExecFn) {
+	onClientConnectionErrorCallback = fn
+}
+
+func (ce *clientEventImpl) OnSendMessageError(fn OnSendMessageErrorExecFn) {
+	onClientSendMessageErrorCallback = fn
+}
+
+func (ce *clientEventImpl) OnReceiveMessageError(fn OnReceiveMessageErrorExecFn) {
+	onClientReceiveMessageErrorCallback = fn
 }

@@ -32,6 +32,13 @@ func (c *connection) Read(b []byte) (n int, err error) {
 			case clientConnection:
 				onClientMessageReceivedCallback(c, b)
 			}
+		} else {
+			switch c.connectedAs {
+			case serverConnection:
+				onServerReceiveMessageErrorCallback(c, err)
+			case clientConnection:
+				onClientReceiveMessageErrorCallback(c, err)
+			}
 		}
 	}()
 
@@ -48,6 +55,13 @@ func (c *connection) Write(b []byte) (n int, err error) {
 				onServerMessageSentCallback(c, b)
 			case clientConnection:
 				onClientMessageSentCallback(c, b)
+			}
+		} else {
+			switch c.connectedAs {
+			case serverConnection:
+				onServerSendMessageErrorCallback(c, b, err)
+			case clientConnection:
+				onClientSendMessageErrorCallback(c, b, err)
 			}
 		}
 	}()
