@@ -21,7 +21,7 @@ var (
 	onServerMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte) {}
 	onServerReceiveMessageErrorCallback OnReceiveMessageErrorExecFn = func(conn net.Conn, err error) {}
 	onServerMessageSentCallback         OnMessageSentExecFn         = func(conn net.Conn, message []byte) {}
-	onServerSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, err error) {}
+	onServerSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, message []byte, err error) {}
 
 	// client events
 	onClientConnectionAcceptedCallback  OnConnectionAcceptedExecFn  = func(conn net.Conn) {}

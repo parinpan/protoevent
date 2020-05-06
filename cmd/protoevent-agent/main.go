@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	agent, event, err := protoevent.CreateAgent("tcp", "0.0.0.0:8089")
+	servant, event, err := protoevent.CreateServant("tcp", "0.0.0.0:8089")
 
 	if nil != err {
 		panic(err)
@@ -42,5 +42,5 @@ func main() {
 
 	})
 
-	agent.Run()
+	servant.Serve()
 }

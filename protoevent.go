@@ -24,7 +24,7 @@ func Dial(network, address string) (net.Conn, ClientEvent, error) {
 	return newConnection, newClientEvent(), nil
 }
 
-func CreateAgent(network, address string) (ServerAgent, ServerEvent, error) {
+func CreateServant(network, address string) (Servant, ServerEvent, error) {
 	l, event, err := Listen(network, address)
-	return newServerAgent(l), event, err
+	return newServant(l), event, err
 }

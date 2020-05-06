@@ -4,25 +4,25 @@ import (
 	"net"
 )
 
-type ServerAgent interface {
-	Run()
+type Servant interface {
+	Serve()
 	SetMessageReadSize(size int)
 }
 
-type serverAgentImpl struct {
+type servantAgentImpl struct {
 	listener        net.Listener
 	messageReadSize int
 }
 
-func newServerAgent(listener net.Listener) *serverAgentImpl {
-	return &serverAgentImpl{listener, 1024}
+func newServant(listener net.Listener) *servantAgentImpl {
+	return &servantAgentImpl{listener, 1024}
 }
 
-func (sa *serverAgentImpl) SetMessageReadSize(size int) {
+func (sa *servantAgentImpl) SetMessageReadSize(size int) {
 	sa.messageReadSize = size
 }
 
-func (sa *serverAgentImpl) Run() {
+func (sa *servantAgentImpl) Serve() {
 	for {
 		conn, err := sa.listener.Accept()
 
