@@ -9,63 +9,77 @@ type OnConnectionClosedExecFn func(conn net.Conn)
 type OnMessageReceivedExecFn func(conn net.Conn, message []byte)
 type OnMessageSentExecFn func(conn net.Conn, message []byte)
 
-type OnConnectionAcceptedRegFn func(execFn OnConnectionAcceptedExecFn)
-type OnConnectionClosedRegFn func(execFn OnConnectionClosedExecFn)
-type OnMessageReceivedRegFn func(execFn OnMessageReceivedExecFn)
-type OnMessageSentRegFn func(execFn OnMessageSentExecFn)
-
 var (
 	// server events
-	onServerConnectionAcceptedCallback OnConnectionAcceptedExecFn
-	onServerConnectionClosedCallback   OnConnectionClosedExecFn
-	onServerMessageReceivedCallback    OnMessageReceivedExecFn
-	onServerMessageSentCallback        OnMessageSentExecFn
+	onServerConnectionAcceptedCallback OnConnectionAcceptedExecFn = func(conn net.Conn) {}
+	onServerConnectionClosedCallback   OnConnectionClosedExecFn   = func(conn net.Conn) {}
+	onServerMessageReceivedCallback    OnMessageReceivedExecFn    = func(conn net.Conn, message []byte) {}
+	onServerMessageSentCallback        OnMessageSentExecFn        = func(conn net.Conn, message []byte) {}
 
 	// client events
-	onClientConnectionAcceptedCallback OnConnectionAcceptedExecFn
-	onClientConnectionClosedCallback   OnConnectionClosedExecFn
-	onClientMessageReceivedCallback    OnMessageReceivedExecFn
-	onClientMessageSentCallback        OnMessageSentExecFn
+	onClientConnectionAcceptedCallback OnConnectionAcceptedExecFn = func(conn net.Conn) {}
+	onClientConnectionClosedCallback   OnConnectionClosedExecFn   = func(conn net.Conn) {}
+	onClientMessageReceivedCallback    OnMessageReceivedExecFn    = func(conn net.Conn, message []byte) {}
+	onClientMessageSentCallback        OnMessageSentExecFn        = func(conn net.Conn, message []byte) {}
 )
 
-func GetClientEventRegistrars() (OnConnectionAcceptedRegFn, OnConnectionClosedRegFn, OnMessageReceivedRegFn, OnMessageSentRegFn) {
-	return setOnClientConnectionAcceptedExecFn, setOnClientConnectionClosedExecFn,
-		setOnClientMessageReceivedExecFn, setOnClientMessageSentExecFn
+type EventBase interface {
+	OnConnectionAccepted(fn OnConnectionAcceptedExecFn)
+	OnConnectionClosed(fn OnConnectionClosedExecFn)
+	OnMessageReceived(fn OnMessageReceivedExecFn)
+	OnMessageSent(fn OnMessageSentExecFn)
 }
 
-func GetServerEventRegistrars() (OnConnectionAcceptedRegFn, OnConnectionClosedRegFn, OnMessageReceivedRegFn, OnMessageSentRegFn) {
-	return setOnServerConnectionAcceptedExecFn, setOnServerConnectionClosedExecFn,
-		setOnServerMessageReceivedExecFn, setOnServerMessageSentExecFn
+type ServerEvent interface {
+	EventBase
 }
 
-func setOnServerConnectionAcceptedExecFn(execFn OnConnectionAcceptedExecFn) {
-	onServerConnectionAcceptedCallback = execFn
+type ClientEvent interface {
+	EventBase
 }
 
-func setOnServerConnectionClosedExecFn(execFn OnConnectionClosedExecFn) {
-	onServerConnectionClosedCallback = execFn
+type serverEventImpl struct {
 }
 
-func setOnServerMessageReceivedExecFn(execFn OnMessageReceivedExecFn) {
-	onServerMessageReceivedCallback = execFn
+func newServerEvent() *serverEventImpl {
+	return new(serverEventImpl)
 }
 
-func setOnServerMessageSentExecFn(execFn OnMessageSentExecFn) {
-	onServerMessageSentCallback = execFn
+func (se *serverEventImpl) OnConnectionAccepted(fn OnConnectionAcceptedExecFn) {
+	onServerConnectionAcceptedCallback = fn
 }
 
-func setOnClientConnectionAcceptedExecFn(execFn OnConnectionAcceptedExecFn) {
-	onClientConnectionAcceptedCallback = execFn
+func (se *serverEventImpl) OnConnectionClosed(fn OnConnectionClosedExecFn) {
+	onServerConnectionClosedCallback = fn
 }
 
-func setOnClientConnectionClosedExecFn(execFn OnConnectionClosedExecFn) {
-	onClientConnectionClosedCallback = execFn
+func (se *serverEventImpl) OnMessageReceived(fn OnMessageReceivedExecFn) {
+	onServerMessageReceivedCallback = fn
 }
 
-func setOnClientMessageReceivedExecFn(execFn OnMessageReceivedExecFn) {
-	onClientMessageReceivedCallback = execFn
+func (se *serverEventImpl) OnMessageSent(fn OnMessageSentExecFn) {
+	onServerMessageSentCallback = fn
 }
 
-func setOnClientMessageSentExecFn(execFn OnMessageSentExecFn) {
-	onClientMessageSentCallback = execFn
+type clientEventImpl struct {
+}
+
+func newClientEvent() *clientEventImpl {
+	return new(clientEventImpl)
+}
+
+func (ce *clientEventImpl) OnConnectionAccepted(fn OnConnectionAcceptedExecFn) {
+	onClientConnectionAcceptedCallback = fn
+}
+
+func (ce *clientEventImpl) OnConnectionClosed(fn OnConnectionClosedExecFn) {
+	onClientConnectionClosedCallback = fn
+}
+
+func (ce *clientEventImpl) OnMessageReceived(fn OnMessageReceivedExecFn) {
+	onClientMessageReceivedCallback = fn
+}
+
+func (ce *clientEventImpl) OnMessageSent(fn OnMessageSentExecFn) {
+	onClientMessageSentCallback = fn
 }
