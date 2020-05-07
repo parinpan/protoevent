@@ -39,7 +39,7 @@ func main() {
 	})
 	
 	event.OnMessageSent(func(conn net.Conn, message []byte) {
-	
+		fmt.Println("Sent a message: ", string(message))
 	})
 	
 	err = agent.Run(func(conn net.Conn) error {
