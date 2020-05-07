@@ -11,17 +11,9 @@ func Listen(network, address string) (net.Listener, ServerEvent, error) {
 }
 
 func Dial(network, address string) (net.Conn, ClientEvent, error) {
-	conn, err := net.Dial(network, address)
-
-	if nil != err {
-		onClientConnectionErrorCallback(err)
-		return conn, newClientEvent(), err
-	}
-
-	newConnection := newConnection(clientConnection, conn)
-	onClientConnectionAcceptedCallback(newConnection)
-
-	return newConnection, newClientEvent(), nil
+	dialer := new(dialer)
+	conn, err := dialer.Dial(network, address)
+	return conn, newClientEvent(), err
 }
 
 func CreateServant(network, address string) (Servant, ServerEvent, error) {

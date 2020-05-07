@@ -25,14 +25,17 @@ func (a *agentImpl) SetDefaultReadSize(size int) {
 }
 
 func (a *agentImpl) Run(fn triggerFn) error {
+	onClientConnectionAcceptedCallback(a.connection)
+	defer a.connection.Close()
 	err := fn(a.connection)
 	
 	if nil != err {
 		return err
 	}
 	
+	message := make([]byte, a.defaultReadSize)
+	
 	for {
-		message := make([]byte, a.defaultReadSize)
 		_, err = a.connection.Read(message)
 		
 		if nil != err {
