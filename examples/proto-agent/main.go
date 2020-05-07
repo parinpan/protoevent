@@ -9,6 +9,7 @@ import (
 
 func main() {
 	agent, event := protoevent.CreateAgent("tcp", "0.0.0.0:8089")
+	agent.SetDefaultReadSize(4096) // set default read size per chunk in bytes
 
 	event.OnConnectionError(func(err error) {
 
