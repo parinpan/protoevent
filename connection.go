@@ -24,23 +24,21 @@ func newConnection(connectedAs connectionType, conn net.Conn) *connection {
 func (c *connection) Read(b []byte) (n int, err error) {
 	n, err = c.connection.Read(b)
 
-	defer func() {
-		if nil == err {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerMessageReceivedCallback(c, b)
-			case clientConnection:
-				onClientMessageReceivedCallback(c, b)
-			}
-		} else {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerReceiveMessageErrorCallback(c, err)
-			case clientConnection:
-				onClientReceiveMessageErrorCallback(c, err)
-			}
+	if nil == err {
+		switch c.connectedAs {
+		case serverConnection:
+			onServerMessageReceivedCallback(c, b[:n])
+		case clientConnection:
+			onClientMessageReceivedCallback(c, b[:n])
 		}
-	}()
+	} else {
+		switch c.connectedAs {
+		case serverConnection:
+			onServerReceiveMessageErrorCallback(c, err)
+		case clientConnection:
+			onClientReceiveMessageErrorCallback(c, err)
+		}
+	}
 
 	return n, err
 }
@@ -48,23 +46,21 @@ func (c *connection) Read(b []byte) (n int, err error) {
 func (c *connection) Write(b []byte) (n int, err error) {
 	n, err = c.connection.Write(b)
 
-	defer func() {
-		if nil == err {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerMessageSentCallback(c, b)
-			case clientConnection:
-				onClientMessageSentCallback(c, b)
-			}
-		} else {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerSendMessageErrorCallback(c, b, err)
-			case clientConnection:
-				onClientSendMessageErrorCallback(c, b, err)
-			}
+	if nil == err {
+		switch c.connectedAs {
+		case serverConnection:
+			onServerMessageSentCallback(c, b)
+		case clientConnection:
+			onClientMessageSentCallback(c, b)
 		}
-	}()
+	} else {
+		switch c.connectedAs {
+		case serverConnection:
+			onServerSendMessageErrorCallback(c, b, err)
+		case clientConnection:
+			onClientSendMessageErrorCallback(c, b, err)
+		}
+	}
 
 	return n, err
 }
@@ -72,16 +68,14 @@ func (c *connection) Write(b []byte) (n int, err error) {
 func (c *connection) Close() error {
 	err := c.connection.Close()
 
-	defer func() {
-		if nil == err {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerConnectionClosedCallback(c)
-			case clientConnection:
-				onClientConnectionClosedCallback(c)
-			}
+	if nil == err {
+		switch c.connectedAs {
+		case serverConnection:
+			onServerConnectionClosedCallback(c)
+		case clientConnection:
+			onClientConnectionClosedCallback(c)
 		}
-	}()
+	}
 
 	return err
 }
