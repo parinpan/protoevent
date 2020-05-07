@@ -14,12 +14,12 @@ func Dial(network, address string) (net.Conn, ClientEvent, error) {
 	conn, err := net.Dial(network, address)
 
 	if nil != err {
-		defer onClientConnectionErrorCallback(err)
+		onClientConnectionErrorCallback(err)
 		return conn, newClientEvent(), err
 	}
 
 	newConnection := newConnection(clientConnection, conn)
-	defer onClientConnectionAcceptedCallback(newConnection)
+	onClientConnectionAcceptedCallback(newConnection)
 
 	return newConnection, newClientEvent(), nil
 }
