@@ -38,6 +38,7 @@ func main() {
 		fmt.Println("Sent a message: ", string(message))
 	})
 
+	// trigger a message to get connected with the server at first
 	err := agent.Run(func(conn net.Conn) error {
 		_, err := conn.Write([]byte(`{"from": "AgentV1"}`))
 		return err
