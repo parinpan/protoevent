@@ -131,3 +131,9 @@ func main() {
 	}
 }
 ```
+# Contact Me 
+If you have any inquiries. You can catch me up on:
+- [Linkedin](https://linkedin.com/in/fachrinfan)
+- [Twitter](https://twitter.com/fachrinfan)
+- [Instagram](https://instagram.com/fachrinfan)
+- [Email](mailto:fachrin.nasution@gmail.com)
