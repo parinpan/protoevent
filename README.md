@@ -1,9 +1,11 @@
+<p align="center"> 
+	<img src="https://user-images.githubusercontent.com/14908455/81298347-dcb05e80-909e-11ea-8aa3-44ecf2c46af9.png"/>
+</p>
 
-# ProtoEvent
 ProtoEvent is an event-based TCP/UDP connection handling in Golang. It's simple and not exploiting too much the basic functionality of making a new protocol connection. Basically, ProtoEvent reimplements `net.Listener` and `net.Conn`  interface to have extended ability of capturing various events happened in network communication.
 
 # Background
-It's painful enough when you have to look after your simple network application codebase which is not well-organized ends up with producing more spagetthi code.
+It's painful enough when you have to look after your simple network application codebase which is not well-organized ends up with producing more spaghetti code. At least, we're now able to organize application logics based on a certain network event.
 
 # Installation
 ```
@@ -11,7 +13,7 @@ go get -u https://github.com/parinpan/protoevent
 ```
 
 # Demo
-Here will be a demo.
+![ezgif com-video-to-gif](https://user-images.githubusercontent.com/14908455/81297569-a0303300-909d-11ea-90f4-935d1d16925b.gif)
 
 # Examples
 Server side application:
@@ -76,7 +78,7 @@ func main() {
 	servant.Serve()
 }
 ```
----
+
 Client side application:
 ```golang
 package main
@@ -131,3 +133,9 @@ func main() {
 	}
 }
 ```
+# Contact Me 
+If you have any inquiries. You can catch me up on:
+- [Linkedin](https://linkedin.com/in/fachrinfan)
+- [Twitter](https://twitter.com/fachrinfan)
+- [Instagram](https://instagram.com/fachrinfan)
+- [Email](mailto:fachrin.nasution@gmail.com)
