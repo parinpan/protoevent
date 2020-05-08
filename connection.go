@@ -25,21 +25,21 @@ func (c *connection) Read(b []byte) (n int, err error) {
 	n, err = c.connection.Read(b)
 
 	go func() {
-		copiedConn, copiedBytes := *c, b
+		copiedBytes := b
 
 		if nil == err {
 			switch c.connectedAs {
 			case serverConnection:
-				onServerMessageReceivedCallback(&copiedConn, copiedBytes[:n])
+				onServerMessageReceivedCallback(c, copiedBytes[:n])
 			case clientConnection:
-				onClientMessageReceivedCallback(&copiedConn, copiedBytes[:n])
+				onClientMessageReceivedCallback(c, copiedBytes[:n])
 			}
 		} else {
 			switch c.connectedAs {
 			case serverConnection:
-				onServerReceiveMessageErrorCallback(&copiedConn, err)
+				onServerReceiveMessageErrorCallback(c, err)
 			case clientConnection:
-				onClientReceiveMessageErrorCallback(&copiedConn, err)
+				onClientReceiveMessageErrorCallback(c, err)
 			}
 		}
 	}()
@@ -51,21 +51,21 @@ func (c *connection) Write(b []byte) (n int, err error) {
 	n, err = c.connection.Write(b)
 
 	go func() {
-		copiedConn, copiedBytes := *c, b
+		copiedBytes := b
 
 		if nil == err {
 			switch c.connectedAs {
 			case serverConnection:
-				onServerMessageSentCallback(&copiedConn, copiedBytes)
+				onServerMessageSentCallback(c, copiedBytes)
 			case clientConnection:
-				onClientMessageSentCallback(&copiedConn, copiedBytes)
+				onClientMessageSentCallback(c, copiedBytes)
 			}
 		} else {
 			switch c.connectedAs {
 			case serverConnection:
-				onServerSendMessageErrorCallback(&copiedConn, copiedBytes, err)
+				onServerSendMessageErrorCallback(c, copiedBytes, err)
 			case clientConnection:
-				onClientSendMessageErrorCallback(&copiedConn, copiedBytes, err)
+				onClientSendMessageErrorCallback(c, copiedBytes, err)
 			}
 		}
 	}()
@@ -77,14 +77,12 @@ func (c *connection) Close() error {
 	err := c.connection.Close()
 
 	go func() {
-		copiedConn := *c
-
 		if nil == err {
 			switch c.connectedAs {
 			case serverConnection:
-				onServerConnectionClosedCallback(&copiedConn)
+				onServerConnectionClosedCallback(c)
 			case clientConnection:
-				onClientConnectionClosedCallback(&copiedConn)
+				onClientConnectionClosedCallback(c)
 			}
 		}
 	}()
