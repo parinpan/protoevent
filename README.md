@@ -78,7 +78,7 @@ func main() {
 	servant.Serve()
 }
 ```
----
+
 Client side application:
 ```golang
 package main
