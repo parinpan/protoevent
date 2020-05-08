@@ -24,21 +24,25 @@ func newConnection(connectedAs connectionType, conn net.Conn) *connection {
 func (c *connection) Read(b []byte) (n int, err error) {
 	n, err = c.connection.Read(b)
 
-	if nil == err {
-		switch c.connectedAs {
-		case serverConnection:
-			onServerMessageReceivedCallback(c, b[:n])
-		case clientConnection:
-			onClientMessageReceivedCallback(c, b[:n])
+	go func() {
+		copiedConn, copiedBytes := *c, b
+
+		if nil == err {
+			switch c.connectedAs {
+			case serverConnection:
+				onServerMessageReceivedCallback(&copiedConn, copiedBytes[:n])
+			case clientConnection:
+				onClientMessageReceivedCallback(&copiedConn, copiedBytes[:n])
+			}
+		} else {
+			switch c.connectedAs {
+			case serverConnection:
+				onServerReceiveMessageErrorCallback(&copiedConn, err)
+			case clientConnection:
+				onClientReceiveMessageErrorCallback(&copiedConn, err)
+			}
 		}
-	} else {
-		switch c.connectedAs {
-		case serverConnection:
-			onServerReceiveMessageErrorCallback(c, err)
-		case clientConnection:
-			onClientReceiveMessageErrorCallback(c, err)
-		}
-	}
+	}()
 
 	return n, err
 }
@@ -46,21 +50,25 @@ func (c *connection) Read(b []byte) (n int, err error) {
 func (c *connection) Write(b []byte) (n int, err error) {
 	n, err = c.connection.Write(b)
 
-	if nil == err {
-		switch c.connectedAs {
-		case serverConnection:
-			onServerMessageSentCallback(c, b)
-		case clientConnection:
-			onClientMessageSentCallback(c, b)
+	go func() {
+		copiedConn, copiedBytes := *c, b
+
+		if nil == err {
+			switch c.connectedAs {
+			case serverConnection:
+				onServerMessageSentCallback(&copiedConn, copiedBytes)
+			case clientConnection:
+				onClientMessageSentCallback(&copiedConn, copiedBytes)
+			}
+		} else {
+			switch c.connectedAs {
+			case serverConnection:
+				onServerSendMessageErrorCallback(&copiedConn, copiedBytes, err)
+			case clientConnection:
+				onClientSendMessageErrorCallback(&copiedConn, copiedBytes, err)
+			}
 		}
-	} else {
-		switch c.connectedAs {
-		case serverConnection:
-			onServerSendMessageErrorCallback(c, b, err)
-		case clientConnection:
-			onClientSendMessageErrorCallback(c, b, err)
-		}
-	}
+	}()
 
 	return n, err
 }
@@ -68,14 +76,18 @@ func (c *connection) Write(b []byte) (n int, err error) {
 func (c *connection) Close() error {
 	err := c.connection.Close()
 
-	if nil == err {
-		switch c.connectedAs {
-		case serverConnection:
-			onServerConnectionClosedCallback(c)
-		case clientConnection:
-			onClientConnectionClosedCallback(c)
+	go func() {
+		copiedConn := *c
+
+		if nil == err {
+			switch c.connectedAs {
+			case serverConnection:
+				onServerConnectionClosedCallback(&copiedConn)
+			case clientConnection:
+				onClientConnectionClosedCallback(&copiedConn)
+			}
 		}
-	}
+	}()
 
 	return err
 }

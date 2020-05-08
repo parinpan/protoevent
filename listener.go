@@ -18,12 +18,13 @@ func (l *listener) Accept() (net.Conn, error) {
 	conn, err := l.listener.Accept()
 
 	if nil != err {
-		defer onServerConnectionErrorCallback(err)
-		return conn, err
+		go onServerConnectionErrorCallback(err)
+		return nil, err
 	}
 
 	newConnection := newConnection(serverConnection, conn)
-	defer onServerConnectionAcceptedCallback(newConnection)
+	copiedNewConnection := *newConnection
+	go onServerConnectionAcceptedCallback(&copiedNewConnection)
 
 	return newConnection, err
 }

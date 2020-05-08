@@ -10,14 +10,15 @@ type dialer struct {
 
 func (d *dialer) Dial(network, address string) (*connection, error) {
 	conn, err := net.Dial(network, address)
-	wrappedConn := newConnection(clientConnection, conn)
 
 	if nil != err {
-		onClientConnectionErrorCallback(err)
-		return wrappedConn, err
+		go onClientConnectionErrorCallback(err)
+		return nil, err
 	}
 
-	onClientConnectionAcceptedCallback(wrappedConn)
+	wrappedConn := newConnection(clientConnection, conn)
+	copiedWrappedConn := *wrappedConn
+	go onClientConnectionAcceptedCallback(&copiedWrappedConn)
 
 	return wrappedConn, err
 }
