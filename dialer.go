@@ -12,13 +12,12 @@ func (d *dialer) Dial(network, address string) (*connection, error) {
 	conn, err := net.Dial(network, address)
 
 	if nil != err {
-		go onClientConnectionErrorCallback(err)
+		onClientConnectionErrorCallback(err)
 		return nil, err
 	}
 
 	wrappedConn := newConnection(clientConnection, conn)
-	copiedWrappedConn := *wrappedConn
-	go onClientConnectionAcceptedCallback(&copiedWrappedConn)
+	onClientConnectionAcceptedCallback(wrappedConn)
 
 	return wrappedConn, err
 }
