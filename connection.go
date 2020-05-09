@@ -8,8 +8,8 @@ import (
 type connectionType string
 
 const (
-	serverConnection = "serverConnection"
-	clientConnection = "clientConnection"
+	serverConnection connectionType = "serverConnection"
+	clientConnection connectionType = "clientConnection"
 )
 
 type connection struct {
