@@ -8,7 +8,7 @@ type OnConnectionAcceptedExecFn func(conn net.Conn)
 type OnConnectionClosedExecFn func(conn net.Conn)
 type OnConnectionErrorExecFn func(err error)
 
-type OnMessageReceivedExecFn func(conn net.Conn, message []byte)
+type OnMessageReceivedExecFn func(conn net.Conn, message []byte, rawMessage []byte)
 type OnReceiveMessageErrorExecFn func(conn net.Conn, err error)
 type OnMessageSentExecFn func(conn net.Conn, message []byte)
 type OnSendMessageErrorExecFn func(conn net.Conn, message []byte, err error)
@@ -18,7 +18,7 @@ var (
 	onServerConnectionAcceptedCallback  OnConnectionAcceptedExecFn  = func(conn net.Conn) {}
 	onServerConnectionClosedCallback    OnConnectionClosedExecFn    = func(conn net.Conn) {}
 	onServerConnectionErrorCallback     OnConnectionErrorExecFn     = func(err error) {}
-	onServerMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte) {}
+	onServerMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte, rawMessage []byte) {}
 	onServerReceiveMessageErrorCallback OnReceiveMessageErrorExecFn = func(conn net.Conn, err error) {}
 	onServerMessageSentCallback         OnMessageSentExecFn         = func(conn net.Conn, message []byte) {}
 	onServerSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, message []byte, err error) {}
@@ -27,7 +27,7 @@ var (
 	onClientConnectionAcceptedCallback  OnConnectionAcceptedExecFn  = func(conn net.Conn) {}
 	onClientConnectionClosedCallback    OnConnectionClosedExecFn    = func(conn net.Conn) {}
 	onClientConnectionErrorCallback     OnConnectionErrorExecFn     = func(err error) {}
-	onClientMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte) {}
+	onClientMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte, rawMessage []byte) {}
 	onClientReceiveMessageErrorCallback OnReceiveMessageErrorExecFn = func(conn net.Conn, err error) {}
 	onClientMessageSentCallback         OnMessageSentExecFn         = func(conn net.Conn, message []byte) {}
 	onClientSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, message []byte, err error) {}

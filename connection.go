@@ -30,9 +30,9 @@ func (c *connection) Read(b []byte) (n int, err error) {
 		if nil == err {
 			switch c.connectedAs {
 			case serverConnection:
-				onServerMessageReceivedCallback(c, copiedBytes[:n])
+				onServerMessageReceivedCallback(c, copiedBytes[:n], copiedBytes)
 			case clientConnection:
-				onClientMessageReceivedCallback(c, copiedBytes[:n])
+				onClientMessageReceivedCallback(c, copiedBytes[:n], copiedBytes)
 			}
 		} else {
 			switch c.connectedAs {

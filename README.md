@@ -55,7 +55,7 @@ func main() {
 	
 	})
 
-	event.OnMessageReceived(func(conn net.Conn, message []byte) {
+	event.OnMessageReceived(func(conn net.Conn, message []byte, rawMessage []byte) {
 		fmt.Println("Received a message: ", string(message))
 		
 		var msg Message
@@ -110,7 +110,7 @@ func main() {
 
 	})
 
-	event.OnMessageReceived(func(conn net.Conn, message []byte) {
+	event.OnMessageReceived(func(conn net.Conn, message []byte, rawMessage []byte) {
 		fmt.Println("Received a message: ", string(message))
 	})
 
