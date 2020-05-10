@@ -9,29 +9,29 @@ type Servant interface {
 	SetDefaultReadSize(size int)
 }
 
-type servantAgentImpl struct {
+type servantImpl struct {
 	listener        net.Listener
 	defaultReadSize int
 }
 
-func newServant(listener net.Listener) *servantAgentImpl {
-	return &servantAgentImpl{listener, 1024}
+func newServant(listener net.Listener) *servantImpl {
+	return &servantImpl{listener, 1024}
 }
 
-func (sa *servantAgentImpl) SetDefaultReadSize(size int) {
-	sa.defaultReadSize = size
+func (s *servantImpl) SetDefaultReadSize(size int) {
+	s.defaultReadSize = size
 }
 
-func (sa *servantAgentImpl) Serve() {
+func (s *servantImpl) Serve() {
 	for {
-		conn, err := sa.listener.Accept()
+		conn, err := s.listener.Accept()
 
 		if nil != err {
 			continue
 		}
 
 		go func() {
-			var buffer = make([]byte, sa.defaultReadSize)
+			var buffer = make([]byte, s.defaultReadSize)
 
 			for {
 				defer conn.Close()
