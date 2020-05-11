@@ -14,7 +14,7 @@ func newDialer(network, address string) *dialer {
 	return &dialer{
 		network: network,
 		address: address,
-		event:   newNetworkEvent(clientConnection, address),
+		event:   newNetworkEvent(),
 	}
 }
 

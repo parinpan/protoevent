@@ -1,12 +1,7 @@
 package protoevent
 
 import (
-	"fmt"
 	"net"
-)
-
-var (
-	eventCallbackStorageMap = make(map[string]*eventCallbackStorage)
 )
 
 type OnConnectionAcceptedExecFn func(conn net.Conn)
@@ -53,29 +48,21 @@ type eventCallbackStorage struct {
 	OnMessageSent      OnMessageSentExecFn
 }
 
-func newEventCallbackStorage(connectedAs connectionType, network string) *eventCallbackStorage {
-	hashKey := fmt.Sprint(connectedAs, network)
-
-	eventCallbackStorageMap[hashKey] = &eventCallbackStorage{
-		OnConnectionError:     func(err error) {},
-		OnConnectionAccepted:  func(conn net.Conn) {},
-		OnConnectionClosed:    func(conn net.Conn) {},
-		OnReceiveMessageError: func(conn net.Conn, err error) {},
-		OnMessageReceived:     func(conn net.Conn, message []byte, rawMessage []byte) {},
-		OnSendMessageError:    func(conn net.Conn, message []byte, err error) {},
-		OnMessageSent:         func(conn net.Conn, message []byte) {},
-	}
-
-	return eventCallbackStorageMap[hashKey]
-}
-
 type networkEvent struct {
 	eventCallbackStorage *eventCallbackStorage
 }
 
-func newNetworkEvent(connectedAs connectionType, address string) *networkEvent {
+func newNetworkEvent() *networkEvent {
 	return &networkEvent{
-		eventCallbackStorage: newEventCallbackStorage(connectedAs, address),
+		eventCallbackStorage: &eventCallbackStorage{
+			OnConnectionError:     func(err error) {},
+			OnConnectionAccepted:  func(conn net.Conn) {},
+			OnConnectionClosed:    func(conn net.Conn) {},
+			OnReceiveMessageError: func(conn net.Conn, err error) {},
+			OnMessageReceived:     func(conn net.Conn, message []byte, rawMessage []byte) {},
+			OnSendMessageError:    func(conn net.Conn, message []byte, err error) {},
+			OnMessageSent:         func(conn net.Conn, message []byte) {},
+		},
 	}
 }
 
