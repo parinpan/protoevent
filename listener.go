@@ -16,7 +16,7 @@ func newListener(network, address string) *listener {
 	return &listener{
 		address: address,
 		network: network,
-		event:   newNetworkEvent(serverConnection, address),
+		event:   newNetworkEvent(),
 	}
 }
 
