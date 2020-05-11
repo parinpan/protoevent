@@ -26,14 +26,12 @@ type EventBase interface {
 	OnSendMessageError(fn OnSendMessageErrorExecFn)
 }
 
-type ServerEvent interface {
+type ServantEvent interface {
 	EventBase
-	GetCallbackStorage() *eventCallbackStorage
 }
 
-type ClientEvent interface {
+type AgentEvent interface {
 	EventBase
-	GetCallbackStorage() *eventCallbackStorage
 }
 
 type eventCallbackStorage struct {
