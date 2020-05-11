@@ -53,7 +53,7 @@ type eventCallbackStorage struct {
 	OnMessageSent      OnMessageSentExecFn
 }
 
-func newEventStore(connectedAs connectionType, network string) *eventCallbackStorage {
+func newEventCallbackStorage(connectedAs connectionType, network string) *eventCallbackStorage {
 	hashKey := fmt.Sprint(connectedAs, network)
 
 	eventCallbackStorageMap[hashKey] = &eventCallbackStorage{
@@ -66,8 +66,6 @@ func newEventStore(connectedAs connectionType, network string) *eventCallbackSto
 		OnMessageSent:         func(conn net.Conn, message []byte) {},
 	}
 
-	fmt.Println(hashKey, eventCallbackStorageMap[hashKey])
-
 	return eventCallbackStorageMap[hashKey]
 }
 
@@ -77,7 +75,7 @@ type networkEvent struct {
 
 func newNetworkEvent(connectedAs connectionType, address string) *networkEvent {
 	return &networkEvent{
-		eventCallbackStorage: newEventStore(connectedAs, address),
+		eventCallbackStorage: newEventCallbackStorage(connectedAs, address),
 	}
 }
 
