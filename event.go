@@ -1,123 +1,112 @@
 package protoevent
 
 import (
+	"fmt"
 	"net"
+)
+
+var (
+	eventCallbackStorageMap = make(map[string]*eventCallbackStorage)
 )
 
 type OnConnectionAcceptedExecFn func(conn net.Conn)
 type OnConnectionClosedExecFn func(conn net.Conn)
 type OnConnectionErrorExecFn func(err error)
 
-type OnMessageReceivedExecFn func(conn net.Conn, message []byte, rawMessage []byte)
 type OnReceiveMessageErrorExecFn func(conn net.Conn, err error)
-type OnMessageSentExecFn func(conn net.Conn, message []byte)
+type OnMessageReceivedExecFn func(conn net.Conn, message []byte, rawMessage []byte)
+
 type OnSendMessageErrorExecFn func(conn net.Conn, message []byte, err error)
-
-var (
-	// server events
-	onServerConnectionAcceptedCallback  OnConnectionAcceptedExecFn  = func(conn net.Conn) {}
-	onServerConnectionClosedCallback    OnConnectionClosedExecFn    = func(conn net.Conn) {}
-	onServerConnectionErrorCallback     OnConnectionErrorExecFn     = func(err error) {}
-	onServerMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte, rawMessage []byte) {}
-	onServerReceiveMessageErrorCallback OnReceiveMessageErrorExecFn = func(conn net.Conn, err error) {}
-	onServerMessageSentCallback         OnMessageSentExecFn         = func(conn net.Conn, message []byte) {}
-	onServerSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, message []byte, err error) {}
-
-	// client events
-	onClientConnectionAcceptedCallback  OnConnectionAcceptedExecFn  = func(conn net.Conn) {}
-	onClientConnectionClosedCallback    OnConnectionClosedExecFn    = func(conn net.Conn) {}
-	onClientConnectionErrorCallback     OnConnectionErrorExecFn     = func(err error) {}
-	onClientMessageReceivedCallback     OnMessageReceivedExecFn     = func(conn net.Conn, message []byte, rawMessage []byte) {}
-	onClientReceiveMessageErrorCallback OnReceiveMessageErrorExecFn = func(conn net.Conn, err error) {}
-	onClientMessageSentCallback         OnMessageSentExecFn         = func(conn net.Conn, message []byte) {}
-	onClientSendMessageErrorCallback    OnSendMessageErrorExecFn    = func(conn net.Conn, message []byte, err error) {}
-)
+type OnMessageSentExecFn func(conn net.Conn, message []byte)
 
 type EventBase interface {
+	OnConnectionError(fn OnConnectionErrorExecFn)
 	OnConnectionAccepted(fn OnConnectionAcceptedExecFn)
 	OnConnectionClosed(fn OnConnectionClosedExecFn)
-	OnMessageReceived(fn OnMessageReceivedExecFn)
-	OnMessageSent(fn OnMessageSentExecFn)
 
-	OnConnectionError(fn OnConnectionErrorExecFn)
+	OnMessageReceived(fn OnMessageReceivedExecFn)
 	OnReceiveMessageError(fn OnReceiveMessageErrorExecFn)
+
+	OnMessageSent(fn OnMessageSentExecFn)
 	OnSendMessageError(fn OnSendMessageErrorExecFn)
 }
 
 type ServerEvent interface {
 	EventBase
+	GetCallbackStorage() *eventCallbackStorage
 }
 
 type ClientEvent interface {
 	EventBase
+	GetCallbackStorage() *eventCallbackStorage
 }
 
-type serverEventImpl struct {
+type eventCallbackStorage struct {
+	OnConnectionError    OnConnectionErrorExecFn
+	OnConnectionAccepted OnConnectionAcceptedExecFn
+	OnConnectionClosed   OnConnectionClosedExecFn
+
+	OnReceiveMessageError OnReceiveMessageErrorExecFn
+	OnMessageReceived     OnMessageReceivedExecFn
+
+	OnSendMessageError OnSendMessageErrorExecFn
+	OnMessageSent      OnMessageSentExecFn
 }
 
-func newServerEvent() *serverEventImpl {
-	return new(serverEventImpl)
+func newEventCallbackStorage(connectedAs connectionType, network string) *eventCallbackStorage {
+	hashKey := fmt.Sprint(connectedAs, network)
+
+	eventCallbackStorageMap[hashKey] = &eventCallbackStorage{
+		OnConnectionError:     func(err error) {},
+		OnConnectionAccepted:  func(conn net.Conn) {},
+		OnConnectionClosed:    func(conn net.Conn) {},
+		OnReceiveMessageError: func(conn net.Conn, err error) {},
+		OnMessageReceived:     func(conn net.Conn, message []byte, rawMessage []byte) {},
+		OnSendMessageError:    func(conn net.Conn, message []byte, err error) {},
+		OnMessageSent:         func(conn net.Conn, message []byte) {},
+	}
+
+	return eventCallbackStorageMap[hashKey]
 }
 
-func (se *serverEventImpl) OnConnectionAccepted(fn OnConnectionAcceptedExecFn) {
-	onServerConnectionAcceptedCallback = fn
+type networkEvent struct {
+	eventCallbackStorage *eventCallbackStorage
 }
 
-func (se *serverEventImpl) OnConnectionClosed(fn OnConnectionClosedExecFn) {
-	onServerConnectionClosedCallback = fn
+func newNetworkEvent(connectedAs connectionType, address string) *networkEvent {
+	return &networkEvent{
+		eventCallbackStorage: newEventCallbackStorage(connectedAs, address),
+	}
 }
 
-func (se *serverEventImpl) OnMessageReceived(fn OnMessageReceivedExecFn) {
-	onServerMessageReceivedCallback = fn
+func (ne *networkEvent) OnConnectionError(fn OnConnectionErrorExecFn) {
+	ne.eventCallbackStorage.OnConnectionError = fn
 }
 
-func (se *serverEventImpl) OnMessageSent(fn OnMessageSentExecFn) {
-	onServerMessageSentCallback = fn
+func (ne *networkEvent) OnConnectionAccepted(fn OnConnectionAcceptedExecFn) {
+	ne.eventCallbackStorage.OnConnectionAccepted = fn
 }
 
-func (se *serverEventImpl) OnConnectionError(fn OnConnectionErrorExecFn) {
-	onServerConnectionErrorCallback = fn
+func (ne *networkEvent) OnConnectionClosed(fn OnConnectionClosedExecFn) {
+	ne.eventCallbackStorage.OnConnectionClosed = fn
 }
 
-func (se *serverEventImpl) OnSendMessageError(fn OnSendMessageErrorExecFn) {
-	onServerSendMessageErrorCallback = fn
+func (ne *networkEvent) OnReceiveMessageError(fn OnReceiveMessageErrorExecFn) {
+	ne.eventCallbackStorage.OnReceiveMessageError = fn
 }
 
-func (se *serverEventImpl) OnReceiveMessageError(fn OnReceiveMessageErrorExecFn) {
-	onServerReceiveMessageErrorCallback = fn
+func (ne *networkEvent) OnMessageReceived(fn OnMessageReceivedExecFn) {
+	ne.eventCallbackStorage.OnMessageReceived = fn
 }
 
-type clientEventImpl struct {
+func (ne *networkEvent) OnSendMessageError(fn OnSendMessageErrorExecFn) {
+	ne.eventCallbackStorage.OnSendMessageError = fn
 }
 
-func newClientEvent() *clientEventImpl {
-	return new(clientEventImpl)
+func (ne *networkEvent) OnMessageSent(fn OnMessageSentExecFn) {
+	ne.eventCallbackStorage.OnMessageSent = fn
 }
 
-func (ce *clientEventImpl) OnConnectionAccepted(fn OnConnectionAcceptedExecFn) {
-	onClientConnectionAcceptedCallback = fn
-}
-
-func (ce *clientEventImpl) OnConnectionClosed(fn OnConnectionClosedExecFn) {
-	onClientConnectionClosedCallback = fn
-}
-
-func (ce *clientEventImpl) OnMessageReceived(fn OnMessageReceivedExecFn) {
-	onClientMessageReceivedCallback = fn
-}
-
-func (ce *clientEventImpl) OnMessageSent(fn OnMessageSentExecFn) {
-	onClientMessageSentCallback = fn
-}
-
-func (ce *clientEventImpl) OnConnectionError(fn OnConnectionErrorExecFn) {
-	onClientConnectionErrorCallback = fn
-}
-
-func (ce *clientEventImpl) OnSendMessageError(fn OnSendMessageErrorExecFn) {
-	onClientSendMessageErrorCallback = fn
-}
-
-func (ce *clientEventImpl) OnReceiveMessageError(fn OnReceiveMessageErrorExecFn) {
-	onClientReceiveMessageErrorCallback = fn
+func (ne *networkEvent) GetCallbackStorage() *eventCallbackStorage {
+	return ne.eventCallbackStorage
 }

@@ -15,10 +15,15 @@ const (
 type connection struct {
 	connectedAs connectionType
 	connection  net.Conn
+	event       *networkEvent
 }
 
-func newConnection(connectedAs connectionType, conn net.Conn) *connection {
-	return &connection{connectedAs, conn}
+func newConnection(connectedAs connectionType, conn net.Conn, event *networkEvent) *connection {
+	return &connection{
+		connectedAs: connectedAs,
+		connection:  conn,
+		event:       event,
+	}
 }
 
 func (c *connection) Read(b []byte) (n int, err error) {
@@ -28,19 +33,9 @@ func (c *connection) Read(b []byte) (n int, err error) {
 		copiedBytes := b
 
 		if nil == err {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerMessageReceivedCallback(c, copiedBytes[:n], copiedBytes)
-			case clientConnection:
-				onClientMessageReceivedCallback(c, copiedBytes[:n], copiedBytes)
-			}
+			c.event.GetCallbackStorage().OnMessageReceived(c, copiedBytes[:n], copiedBytes)
 		} else {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerReceiveMessageErrorCallback(c, err)
-			case clientConnection:
-				onClientReceiveMessageErrorCallback(c, err)
-			}
+			c.event.GetCallbackStorage().OnReceiveMessageError(c, err)
 		}
 	}()
 
@@ -54,19 +49,9 @@ func (c *connection) Write(b []byte) (n int, err error) {
 		copiedBytes := b
 
 		if nil == err {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerMessageSentCallback(c, copiedBytes)
-			case clientConnection:
-				onClientMessageSentCallback(c, copiedBytes)
-			}
+			c.event.GetCallbackStorage().OnMessageSent(c, copiedBytes)
 		} else {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerSendMessageErrorCallback(c, copiedBytes, err)
-			case clientConnection:
-				onClientSendMessageErrorCallback(c, copiedBytes, err)
-			}
+			c.event.GetCallbackStorage().OnSendMessageError(c, copiedBytes, err)
 		}
 	}()
 
@@ -78,12 +63,7 @@ func (c *connection) Close() error {
 
 	go func() {
 		if nil == err {
-			switch c.connectedAs {
-			case serverConnection:
-				onServerConnectionClosedCallback(c)
-			case clientConnection:
-				onClientConnectionClosedCallback(c)
-			}
+			c.event.GetCallbackStorage().OnConnectionClosed(c)
 		}
 	}()
 

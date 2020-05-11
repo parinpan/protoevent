@@ -5,19 +5,33 @@ import (
 )
 
 type dialer struct {
-	conn *connection
+	network string
+	address string
+	event   *networkEvent
 }
 
-func (d *dialer) Dial(network, address string) (*connection, error) {
-	conn, err := net.Dial(network, address)
+func newDialer(network, address string) *dialer {
+	return &dialer{
+		network: network,
+		address: address,
+		event:   newNetworkEvent(clientConnection, address),
+	}
+}
+
+func (d *dialer) Dial() (*connection, error) {
+	conn, err := net.Dial(d.network, d.address)
 
 	if nil != err {
-		onClientConnectionErrorCallback(err)
+		d.event.GetCallbackStorage().OnConnectionError(err)
 		return nil, err
 	}
 
-	wrappedConn := newConnection(clientConnection, conn)
-	onClientConnectionAcceptedCallback(wrappedConn)
+	newConnection := newConnection(clientConnection, conn, d.event)
+	d.event.GetCallbackStorage().OnConnectionAccepted(newConnection)
 
-	return wrappedConn, err
+	return newConnection, err
+}
+
+func (d *dialer) GetEvent() ClientEvent {
+	return d.event
 }

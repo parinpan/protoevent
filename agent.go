@@ -5,31 +5,22 @@ import (
 )
 
 type triggerFn func(conn net.Conn) error
-type dialerFn func(network, address string) (*connection, error)
 
 type Agent interface {
 	Run(fn triggerFn) error
-	GetEvent() ClientEvent
 	SetDefaultReadSize(size int)
 }
 
 type agentImpl struct {
-	dialer     dialerFn
-	connection net.Conn
-	event      ClientEvent
-
+	connection      net.Conn
+	dialer          *dialer
 	defaultReadSize int
-	network         string
-	address         string
 }
 
-func newAgent(dialer dialerFn, network, address string) *agentImpl {
+func newAgent(dialer *dialer) *agentImpl {
 	return &agentImpl{
-		network:         network,
-		address:         address,
 		dialer:          dialer,
 		defaultReadSize: 1024,
-		event:           newClientEvent(),
 	}
 }
 
@@ -37,13 +28,9 @@ func (a *agentImpl) SetDefaultReadSize(size int) {
 	a.defaultReadSize = size
 }
 
-func (a *agentImpl) GetEvent() ClientEvent {
-	return a.event
-}
-
 func (a *agentImpl) Run(fn triggerFn) error {
 	var err error
-	a.connection, err = a.dialer(a.network, a.address)
+	a.connection, err = a.dialer.Dial()
 
 	if nil != err {
 		return err
