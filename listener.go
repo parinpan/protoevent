@@ -48,6 +48,6 @@ func (l *listener) Addr() net.Addr {
 	return l.listener.Addr()
 }
 
-func (l *listener) GetEvent() ServerEvent {
+func (l *listener) GetEvent() *networkEvent {
 	return l.event
 }

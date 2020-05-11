@@ -32,6 +32,6 @@ func (d *dialer) Dial() (*connection, error) {
 	return newConnection, err
 }
 
-func (d *dialer) GetEvent() ClientEvent {
+func (d *dialer) GetEvent() *networkEvent {
 	return d.event
 }
