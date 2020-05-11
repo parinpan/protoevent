@@ -3,12 +3,11 @@ package protoevent
 func CreateServant(network, address string) (Servant, ServerEvent, error) {
 	listener := newListener(network, address)
 
-	l, err := listener.Listen()
-	if nil != err {
+	if err := listener.Listen(); nil != err {
 		return nil, nil, err
 	}
 
-	return newServant(l), l.GetEvent(), err
+	return newServant(listener), listener.GetEvent(), nil
 }
 
 func CreateAgent(network, address string) (Agent, ClientEvent) {

@@ -20,10 +20,10 @@ func newListener(network, address string) *listener {
 	}
 }
 
-func (l *listener) Listen() (*listener, error) {
+func (l *listener) Listen() error {
 	var err error
 	l.listener, err = net.Listen(l.network, l.address)
-	return l, err
+	return err
 }
 
 func (l *listener) Accept() (net.Conn, error) {
